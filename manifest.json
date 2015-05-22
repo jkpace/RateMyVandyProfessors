@@ -1,0 +1,18 @@
+{
+	"manifest_version": 2,
+	"name": "Rate My Vandy Professor",
+	"version": "0.1",
+	"page_action": {
+		"default_icon": "icon.png"
+	},
+	"permissions": [
+		"http://www.ratemyprofessors.com/*",
+		"https://www.ratemyprofessors.com/*"
+	],
+	"content_scripts": [
+		{
+			"matches": ["https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action*"],
+			"js": ["jquery-2.1.4.min.js", "content.js"]
+		}
+	]
+}
