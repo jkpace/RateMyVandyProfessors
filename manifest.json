@@ -7,12 +7,18 @@
 	},
 	"permissions": [
 		"http://www.ratemyprofessors.com/*",
-		"https://www.ratemyprofessors.com/*"
+		"https://www.ratemyprofessors.com/*",
+		"http://www.google.com/",
+		"https://www.google.com/"
 	],
 	"content_scripts": [
 		{
 			"matches": ["https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action*"],
 			"js": ["jquery-2.1.4.min.js", "content.js"]
 		}
-	]
+	],
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": false
+	}
 }
