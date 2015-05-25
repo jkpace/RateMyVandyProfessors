@@ -14,4 +14,5 @@ RateMyVandyProfessor is a Google Chrome extension that puts RateMyProfessors rat
 <ul>
   <li>Provide a breakdown of each of the ratings (helpfulness, clarity, easiness).</li>
   <li>Create a separate column with ratings for a cleaner look.</li>
+  <li>Wait until all results are loaded before putting them into Class Search.</li>
 </ul>
