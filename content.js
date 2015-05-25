@@ -1,36 +1,37 @@
 /**
  * Rate My Vandy Professor
- * JavaScript file to scrape information and replace it
- * Jamal Pace - jamal.pace@vanderbilt.edu
+ * JavaScript file to scrape information and replace it in Class Search
  */
 
 var timeout = null;		            // Necesssary for listener
-var nameFilter = /\w+(, )\w+/g;     // RegEx to change names into searchable terms
-var loc = "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + "gill%2C+lesley";
+var names;                          // Set as global variable so any function can use it
 
 // Confirm that the extension is active
-$("h1").append(' - Click to run');
+$("h1").append(" - Click to run");
 
 // Placeholder click to update function until infinite loop resolved
 $("h1").click(function() {
-    console.debug(convertName("Casagrande, Vivien A. | Calkins, David J."));
+    getProfessorNames();
 })
 
 /**
- * This method gets the professor name from Class Search
+ * This function gets the professor name from Class Search
  */
 function getProfessorNames() {
-    var names = $(".classInstructor");
-    console.debug(names);
+    names = $(".classInstructor");
     for (var i = 0; i < names.length; i++) {
-        if (names[i].innerText != "Staff") {
-            console.debug(names[i].innerText);
+        if (!names[i].innerText.includes(" - ")) {
+            if (!names[i].innerText.includes("Staff")) {
+                searchForProfessor(i, names[i].innerText);
+            } else {
+                names[i].innerText += " - N/A";
+            }
         }
     }
 }
 
 /**
- * This method changes the original name into one that can be searched
+ * This function changes the original name into one that can be searched
  */
 function convertName(original) {
     var temp = /\w+(, )\w+/g.exec(original);
@@ -38,43 +39,47 @@ function convertName(original) {
 }
 
 /**
- * This method emulates the RMP search page then outputs 
+ * This function emulates the RMP search page then outputs 
  * the specific ID for that professor at Vanderbilt
  */
-function searchForProfessor() {
+function searchForProfessor(profIndex, profName) {
     chrome.runtime.sendMessage({
-        action: 'xhr',
-        method: 'POST',
-        url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=gill%2C+lesley"
+        action: "xhr",
+        method: "POST",
+        url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + convertName(profName)
     }, function(response) {
-        var searchPage = document.createElement('html');
-        searchPage.innerHTML = response.response;
-        var profLink = searchPage.getElementsByClassName("listing PROFESSOR")[0].getElementsByTagName("a")[0].getAttribute("href");
-        console.debug(profLink);
+        var searchPage = document.createElement("html");
+        searchPage.innerHTML = response.pageText;
+        var profLink = searchPage.getElementsByClassName("listing PROFESSOR")[0];
+        if (typeof(profLink) != "undefined") {
+            profLink = profLink.getElementsByTagName("a")[0].getAttribute("href");
+            findRating(profIndex, profName, profLink);
+        } else {
+            names[profIndex].innerText += " - N/A";
+        }
     });
-    return profLink;
 }
 
 /**
- * This method builds on searchForProfessor by "clicking" by
+ * This function builds on searchForProfessor by "clicking" by
  * finding the teacher's rating from RMP and returning it.
  */
-function findRating() {
+function findRating(profIndex, profName, profLink) {
     chrome.runtime.sendMessage({
-        action: 'xhr',
-        method: 'POST',
-        url: "http://www.ratemyprofessors.com" + "/ShowRatings.jsp?tid=1543230"
+        action: "xhr",
+        method: "POST",
+        url: "http://www.ratemyprofessors.com" + profLink
     }, function(response) {
-        console.debug("Request received.");
-        var ratingPage = document.createElement('html');
-        ratingPage.innerHTML = response.response;
+        var ratingPage = document.createElement("html");
+        ratingPage.innerHTML = response.pageText;
         var profRating = ratingPage.getElementsByClassName("grade")[0].innerText;
-        console.debug("This teacher's rating is " + profRating);
+        console.debug("Rating for " + profName + ": " + profRating);
+        names[profIndex].innerText += " - " + profRating;
     });
 }
 
 /**
- * This method replaces the professors' names with the ratings
+ * This function replaces the professors' names with the ratings
  */
 function update() {
     console.debug("listener fired.");

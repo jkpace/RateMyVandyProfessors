@@ -1,15 +1,12 @@
 {
 	"manifest_version": 2,
 	"name": "Rate My Vandy Professor",
-	"version": "0.1",
+	"version": "0.9",
 	"page_action": {
 		"default_icon": "icon.png"
 	},
 	"permissions": [
-		"http://www.ratemyprofessors.com/*",
-		"https://www.ratemyprofessors.com/*",
-		"http://www.google.com/",
-		"https://www.google.com/"
+		"http://www.ratemyprofessors.com/*"
 	],
 	"content_scripts": [
 		{
@@ -19,6 +16,6 @@
 	],
 	"background": {
 		"scripts": ["background.js"],
-		"persistent": false
+		"persistent": true
 	}
 }
