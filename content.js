@@ -88,16 +88,17 @@ function findRating(profIndex, profName, profLink) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
         var profRating = ratingPage.getElementsByClassName("grade")[0].innerText;
-        if (parseInt(profRating) > 4.0) {
+        if (parseFloat(profRating) > 3.5) {
             var color = "#27AE60";                  // Green
-        } else if (parseInt(profRating) < 3.0) {
+        } else if (parseFloat(profRating) < 3.0) {
             var color = "#E74C3C";                  // Red
         } else {
             var color = "#FF9800";                  // Yellow
         }
         if (!names[profIndex].innerText.includes(" - ")) {
-            if (profRating != "0.0") {
+            if (profRating != "0.0") {              // This only happens when there are no ratings
                 names[profIndex].innerText += " - " + profRating;
+                names[profIndex].style.color = color;
             } else {
                 names[profIndex].innerText += " - N/A";
             }
