@@ -1,7 +1,8 @@
 {
 	"manifest_version": 2,
 	"name": "Rate My Vandy Professor",
-	"version": "0.95",
+	"description": "Puts RateMyProfessors ratings directly into Vanderbilt Class Search.",
+	"version": "1.0",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
@@ -16,9 +17,6 @@
 			"js": ["jquery-2.1.4.min.js", "content.js", "subs.js"]
 		}
 	],
-	"page_action": {
-		"default_icon": "icon48.png"
-	},
 	"background": {
 		"scripts": ["background.js"],
 		"persistent": false

@@ -3,10 +3,10 @@
  * JavaScript file to scrape information and replace it in Class Search
  */
 
-$.getScript(chrome.extension.getURL("subs.js"));
 var timeout = null;		            // Necesssary for listener
+var isList = true;                  // True: in a list; False: in a modal
 var names;                          // Set as global variable so any function can use it
-var indicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="http://i.imgur.com/Dp6UoWh.png" /></div></div>';
+var indicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
 
 // Confirm that the extension is active
 $("#mainContextMenu").css("width", "auto");
@@ -24,12 +24,10 @@ document.addEventListener("DOMSubtreeModified", function() {
 }, false);
 
 /**
- * This is a test function to test the auto-updater
+ * This function determines the type of data to retrieve the pushes it
  */
 function update() {
     getProfessorNames();
-    // Replaces in modal
-    $("table.meetingPatternTable tr[1] td[4]").wrap('<a href="http://www.google.com/"></a>')
 }
 
 /**
@@ -38,7 +36,7 @@ function update() {
 function getProfessorNames() {
     names = $(".classInstructor");
     for (var i = 0; i < names.length; i++) {
-        if (!names[i].innerText.includes(" - ") && names[i].innerText != "") {
+        if (!names[i].innerText.includes(" - ") && names[i].innerText != "" && !names[i].innerHTML.includes("<img")) {
             if (!names[i].innerText.includes("Staff")) {
                 names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">'
                 searchForProfessor(i, names[i].innerText);
@@ -85,7 +83,7 @@ function searchForProfessor(profIndex, profName) {
 
 /**
  * This function builds on searchForProfessor by "clicking" by
- * finding the teacher's rating from RMP and returning it.
+ * finding the teacher's rating from RMP and returning it
  */
 function findRating(profIndex, profName, profLink) {
     chrome.runtime.sendMessage({
@@ -109,12 +107,12 @@ function findRating(profIndex, profName, profLink) {
 }
 
 /**
- * This function color-codes the ratings.
+ * This function color-codes the ratings
  */
 function getColor(profRating) {
-    if (profRating > 3.5) {
+    if (profRating >= 3.5) {
             return "#27AE60";                  // Green
-        } else if (profRating < 3.0) {
+        } else if (profRating < 2.5) {
             return "#E74C3C";                  // Red
         } else {
             return "#FF9800";                  // Yellow
