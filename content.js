@@ -3,11 +3,14 @@
  * JavaScript file to scrape information and replace it in Class Search
  */
 
+$.getScript(chrome.extension.getURL("subs.js"));
 var timeout = null;		            // Necesssary for listener
 var names;                          // Set as global variable so any function can use it
+var indicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="http://i.imgur.com/Dp6UoWh.png" /></div></div>';
 
 // Confirm that the extension is active
-$("h1").append(" - Extension active");
+$("#mainContextMenu").css("width", "auto");
+$("#mainContextMenu .contextMenuItem").eq(0).before(indicator);
 
 /**
  * Every second, checks to see if AJAX executes (if page changes any)
@@ -25,7 +28,8 @@ document.addEventListener("DOMSubtreeModified", function() {
  */
 function update() {
     getProfessorNames();
-    $("table.meetingPatternTable tr[1] td[4]").wrap('<a href="http://www.google.com/"></a>')       // Replaces in modal
+    // Replaces in modal
+    $("table.meetingPatternTable tr[1] td[4]").wrap('<a href="http://www.google.com/"></a>')
 }
 
 /**
@@ -49,7 +53,11 @@ function getProfessorNames() {
  * This function changes the original name into one that can be searched
  */
 function convertName(original) {
-    var temp = /\w+(, )\w+/g.exec(original);        // Only take word immediately before and after comma (cuts off initials)
+    if (original.trim() in subs) {
+        original = subs[original.trim()];
+    }
+    // Only take word immediately before and after comma (cuts off initials)
+    var temp = /\w+(, )\w+/g.exec(original);
     return temp[0].replace(", ", "%2C+");
 }
 
@@ -100,6 +108,9 @@ function findRating(profIndex, profName, profLink) {
     });
 }
 
+/**
+ * This function color-codes the ratings.
+ */
 function getColor(profRating) {
     if (profRating > 3.5) {
             return "#27AE60";                  // Green

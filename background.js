@@ -1,5 +1,4 @@
 // This background file serves as a workaround for mixed content in Chrome
-
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	if (request.action == "xhr") {
 		var xhr = new XMLHttpRequest();
@@ -8,7 +7,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             callback({pageText: xhr.responseText});
         }
 		xhr.onerror = function() {
-			console.log("[ERROR]");
+			console.debug("[ERROR]");
 			callback();
 		}
 		xhr.open(method, request.url, true);

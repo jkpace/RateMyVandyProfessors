@@ -1,11 +1,11 @@
-var subs = [{
-	key: 'Roth, Gerald', val: 'Roth, Jerry',
-	key: 'Stahl, Sandra', val: 'Stahl, Sandy',
-	key: 'Tairas, Robert A.', val: "Tairas, Rob",
-	key: "Van Schaack, Andrew J.", val: "Van Schaack, Andy",
-	key: "Davis, Victoria J.", val: "Davis, Vicki",
-	key: "Crooke, Philip S.", val: "Crooke",
-	key: "Rizzo, Carmelo J.", val: "Rizzo, M",
-	key: "Johnsen, Arthur", val: "Johnsen, Art",
-	key: "Link, Stanley", val: "Link, Stan"
-}];
+var subs = {
+	'Roth, Gerald': 'Roth, Jerry',
+	'Stahl, Sandra': 'Stahl, Sandy',
+	'Tairas, Robert A.': "Tairas, Rob",
+	"Van Schaack, Andrew J.": "Van Schaack, Andy",
+	"Davis, Victoria J.": "Davis, Vicki",
+	"Crooke, Philip S.": "Crooke",
+	"Rizzo, Carmelo J.": "Rizzo, M",
+	"Johnsen, Arthur": "Johnsen, Art",
+	"Link, Stanley": "Link, Stan"
+};
