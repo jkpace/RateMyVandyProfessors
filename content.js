@@ -34,7 +34,7 @@ function update() {
 function getProfessorNames() {
     names = $(".classInstructor");
     for (var i = 0; i < names.length; i++) {
-        if (!names[i].innerText.includes(" - ")) {
+        if (!names[i].innerText.includes(" - ") && names[i].innerText != "") {
             if (!names[i].innerText.includes("Staff")) {
                 names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">'
                 searchForProfessor(i, names[i].innerText);
@@ -49,7 +49,7 @@ function getProfessorNames() {
  * This function changes the original name into one that can be searched
  */
 function convertName(original) {
-    var temp = /\w+(, )\w+/g.exec(original);
+    var temp = /\w+(, )\w+/g.exec(original);        // Only take word immediately before and after comma (cuts off initials)
     return temp[0].replace(", ", "%2C+");
 }
 
@@ -88,13 +88,7 @@ function findRating(profIndex, profName, profLink) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
         var profRating = ratingPage.getElementsByClassName("grade")[0].innerText;
-        if (parseFloat(profRating) > 3.5) {
-            var color = "#27AE60";                  // Green
-        } else if (parseFloat(profRating) < 3.0) {
-            var color = "#E74C3C";                  // Red
-        } else {
-            var color = "#FF9800";                  // Yellow
-        }
+        var color = getColor(parseInt(profRating));
         if (!names[profIndex].innerText.includes(" - ")) {
             if (profRating != "0.0") {              // This only happens when there are no ratings
                 names[profIndex].innerText += " - " + profRating;
@@ -104,4 +98,14 @@ function findRating(profIndex, profName, profLink) {
             }
         }
     });
+}
+
+function getColor(profRating) {
+    if (profRating > 3.5) {
+            return "#27AE60";                  // Green
+        } else if (profRating < 3.0) {
+            return "#E74C3C";                  // Red
+        } else {
+            return "#FF9800";                  // Yellow
+        }
 }

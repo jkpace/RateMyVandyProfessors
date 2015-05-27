@@ -2,8 +2,10 @@
 	"manifest_version": 2,
 	"name": "Rate My Vandy Professor",
 	"version": "0.9",
-	"page_action": {
-		"default_icon": "icon.png"
+	"icons": {
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
 	},
 	"permissions": [
 		"http://www.ratemyprofessors.com/*"
@@ -14,6 +16,9 @@
 			"js": ["jquery-2.1.4.min.js", "content.js"]
 		}
 	],
+	"page_action": {
+		"default_icon": "icon48.png"
+	},
 	"background": {
 		"scripts": ["background.js"],
 		"persistent": false
