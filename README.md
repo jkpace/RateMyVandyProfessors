@@ -3,9 +3,3 @@ Rate My Vandy Professors is a Google Chrome extension that puts RateMyProfessors
 <img src="http://i.imgur.com/ZcAiofW.png">
 #Known Issues
 Click <a href="https://github.com/jkpace/RateMyVandyProfessor/issues">here</a> to see a list of known issues.
-#Future Considerations
-<ul>
-  <li>Provide a breakdown of each of the ratings (helpfulness, clarity, easiness).</li>
-  <li>Create a separate column with ratings for a cleaner look.</li>
-  <li>Wait until all results are loaded before putting them into Class Search.</li>
-</ul>
