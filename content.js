@@ -1,12 +1,14 @@
 /**
- * Rate My Vandy Professor
+ * Rate My Vandy Professors
  * JavaScript file to scrape information and replace it in Class Search
  */
 
 var timeout = null;		            // Necesssary for listener
 var isList = true;                  // True: in a list; False: in a modal
 var names;                          // Set as global variable so any function can use it
+// Find a way to make next two variables readable
 var indicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
+var modal = '<div class="detailHeader" id="ratings">Ratings</div><div class="detailPanel"><center><a href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid=1424588" target="_blank">View on RateMyProfessor</a></center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td>5.0</td></tr><tr><td class="label">Clarity: </td><td>4.9</td></tr><tr><td class="label">Easiness: </td><td>4.0</td></tr></tbody></table></div>'
 
 // Confirm that the extension is active
 $("#mainContextMenu").css("width", "auto");
@@ -24,10 +26,13 @@ document.addEventListener("DOMSubtreeModified", function() {
 }, false);
 
 /**
- * This function determines the type of data to retrieve the pushes it
+ * This function determines the type of data to retrieve, pushes it
  */
 function update() {
     getProfessorNames();
+    if (document.getElementById("ratings") == null) {
+        $("#rightSection").append(modal);
+    }
 }
 
 /**
@@ -54,7 +59,7 @@ function convertName(original) {
     if (original.trim() in subs) {
         original = subs[original.trim()];
     }
-    // Only take word immediately before and after comma (cuts off initials)
+    // Only take words immediately before and after comma (cuts off initials)
     var temp = /\w+(, )\w+/g.exec(original);
     return temp[0].replace(", ", "%2C+");
 }
@@ -71,19 +76,19 @@ function searchForProfessor(profIndex, profName) {
     }, function(response) {
         var searchPage = document.createElement("html");
         searchPage.innerHTML = response.pageText;
-        var profLink = searchPage.getElementsByClassName("listing PROFESSOR")[0];
-        if (typeof(profLink) != "undefined") {
+        var profLink = searchPage.querySelector(".listing.PROFESSOR");
+        if (profLink != null) {
             profLink = profLink.getElementsByTagName("a")[0].getAttribute("href");
             findRating(profIndex, profName, profLink);
         } else {
-            names[profIndex].innerText += " - N/A";
+            names[profIndex].innerText += " - N/A"; 
         }
     });
 }
 
 /**
- * This function builds on searchForProfessor by "clicking" by
- * finding the teacher's rating from RMP and returning it
+ * This function builds on searchForProfessor visits the URL
+ * and returns the overall rating for that professor
  */
 function findRating(profIndex, profName, profLink) {
     chrome.runtime.sendMessage({
@@ -93,7 +98,7 @@ function findRating(profIndex, profName, profLink) {
     }, function(response) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
-        var profRating = ratingPage.getElementsByClassName("grade")[0].innerText;
+        var profRating = ratingPage.querySelector("div.grade").innerText;
         var color = getColor(parseInt(profRating));
         if (!names[profIndex].innerText.includes(" - ")) {
             if (profRating != "0.0") {              // This only happens when there are no ratings

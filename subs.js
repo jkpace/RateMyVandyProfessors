@@ -7,5 +7,7 @@ var subs = {
 	"Crooke, Philip S.": "Crooke",
 	"Rizzo, Carmelo J.": "Rizzo, M",
 	"Johnsen, Arthur": "Johnsen, Art",
-	"Link, Stanley": "Link, Stan"
+	"Link, Stanley": "Link, Stan",
+	"Savelyev, Petr A.": "Savelyev, Peter",
+	"Leguizamon J S.": "Leguizamon, Sebastian"
 };

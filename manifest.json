@@ -1,8 +1,9 @@
 {
 	"manifest_version": 2,
-	"name": "Rate My Vandy Professor",
+	"name": "Rate My Vandy Professors",
+	"short_name": "RateVandy",
 	"description": "Puts RateMyProfessors ratings directly into Vanderbilt Class Search.",
-	"version": "1.0",
+	"version": "1.1",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
@@ -14,7 +15,8 @@
 	"content_scripts": [
 		{
 			"matches": ["https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action*"],
-			"js": ["jquery-2.1.4.min.js", "content.js", "subs.js"]
+			"js": ["jquery-2.1.4.min.js", "content.js", "subs.js"],
+			"all_frames": true
 		}
 	],
 	"background": {
