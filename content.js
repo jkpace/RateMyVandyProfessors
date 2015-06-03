@@ -52,10 +52,29 @@ function getProfessorNames() {
                 names[i].innerText += " - N/A";
             } else {
                 names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">'
-                searchForProfessor(i, names[i].innerText);
+                searchForProfessor(i);
             }
         }
     }
+}
+
+/**
+ * This function emulates the RMP search page then outputs 
+ * the specific ID for that professor at Vanderbilt
+ */
+function searchForProfessor(profIndex) {
+    var profName = names[profIndex].innerText;
+    chrome.runtime.sendMessage({
+        action: "searchForProfessor",
+        method: "POST",
+        url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + convertName(profName)
+    }, function(response) {
+        if (response.profLink != null) {
+            getOverallScore(profIndex, profName, response.profLink);
+        } else {
+            names[profIndex].innerText += " - N/A"; 
+        }
+    });
 }
 
 /**
@@ -71,47 +90,22 @@ function convertName(original) {
 }
 
 /**
- * This function emulates the RMP search page then outputs 
- * the specific ID for that professor at Vanderbilt
- */
-function searchForProfessor(profIndex, profName) {
-    chrome.runtime.sendMessage({
-        action: "xhr",
-        method: "POST",
-        url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + convertName(profName)
-    }, function(response) {
-        var searchPage = document.createElement("html");
-        searchPage.innerHTML = response.pageText;
-        var profLink = searchPage.querySelector(".listing.PROFESSOR");
-        if (profLink != null) {
-            profLink = profLink.getElementsByTagName("a")[0].getAttribute("href");
-            getOverallScore(profIndex, profName, profLink);
-        } else {
-            names[profIndex].innerText += " - N/A"; 
-        }
-    });
-}
-
-/**
  * This function builds on searchForProfessor visits the URL
  * and returns the overall rating for that professor
  */
 function getOverallScore(profIndex, profName, profLink) {
     chrome.runtime.sendMessage({
-        action: "xhr",
+        action: "getOverallScore",
         method: "POST",
         url: "http://www.ratemyprofessors.com" + profLink
     }, function(response) {
-        var ratingPage = document.createElement("html");
-        ratingPage.innerHTML = response.pageText;
-        var profRating = ratingPage.querySelector("div.grade").innerText;
         if (!names[profIndex].innerText.includes(" - ")) {
             // Ignore requests with no ratings
-            if (profRating == "0.0" || profRating.includes("Grade Received")) {
+            if (response.profRating == "0.0" || response.profRating.includes("Grade Received")) {
                 names[profIndex].innerText += " - N/A";
             } else {
-                names[profIndex].innerText += " - " + profRating;
-                names[profIndex].style.color = getColor(parseInt(profRating));
+                names[profIndex].innerText += " - " + response.profRating;
+                names[profIndex].style.color = getColor(parseInt(response.profRating));
             }
         }
     });
