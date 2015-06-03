@@ -7,12 +7,14 @@ var timeout = null;		            // Necesssary for listener
 var isList = true;                  // True: in a list; False: in a modal
 var names;                          // Set as global variable so any function can use it
 // Find a way to make next two variables readable
-var indicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
-var modal = '<div class="detailHeader" id="ratings">Ratings</div><div class="detailPanel"><center><a href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid=1424588" target="_blank">View on RateMyProfessor</a></center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td>5.0</td></tr><tr><td class="label">Clarity: </td><td>4.9</td></tr><tr><td class="label">Easiness: </td><td>4.0</td></tr></tbody></table></div>'
+
+var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
+var modal = '<div class="detailHeader">Ratings</div><div class="detailPanel" id="ratings"><center><a href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid=1424588" target="_blank">View on RateMyProfessor</a></center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness">N/A</td></tr><tr><td class="label">Clarity: </td><td id="clarity">N/A</td></tr><tr><td class="label">Easiness: </td><td id="easiness">N/A</td></tr></tbody></table></div>'
+var isList = true;
 
 // Confirm that the extension is active
 $("#mainContextMenu").css("width", "auto");
-$("#mainContextMenu .contextMenuItem").eq(0).before(indicator);
+$("#mainContextMenu .contextMenuItem").eq(0).before(anchorIndicator);
 
 /**
  * Every second, checks to see if AJAX executes (if page changes any)
@@ -22,7 +24,7 @@ document.addEventListener("DOMSubtreeModified", function() {
     if (timeout) {
         clearTimeout(timeout);
     }
-    timeout = setTimeout(update, 1000);
+    timeout = setTimeout(update, 100);
 }, false);
 
 /**
@@ -32,6 +34,10 @@ function update() {
     getProfessorNames();
     if (document.getElementById("ratings") == null) {
         $("#rightSection").append(modal);
+        var teacher = $("table.meetingPatternTable div").last().text()
+        if (teacher != "" && !teacher.includes("Staff")) {
+            console.debug(teacher);
+        }
     }
 }
 
@@ -42,11 +48,11 @@ function getProfessorNames() {
     names = $(".classInstructor");
     for (var i = 0; i < names.length; i++) {
         if (!names[i].innerText.includes(" - ") && names[i].innerText != "" && !names[i].innerHTML.includes("<img")) {
-            if (!names[i].innerText.includes("Staff")) {
+            if (names[i].innerText.includes("Staff") || names[i].innerText.includes(" | ")) {
+                names[i].innerText += " - N/A";
+            } else {
                 names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">'
                 searchForProfessor(i, names[i].innerText);
-            } else {
-                names[i].innerText += " - N/A";
             }
         }
     }
@@ -79,7 +85,7 @@ function searchForProfessor(profIndex, profName) {
         var profLink = searchPage.querySelector(".listing.PROFESSOR");
         if (profLink != null) {
             profLink = profLink.getElementsByTagName("a")[0].getAttribute("href");
-            findRating(profIndex, profName, profLink);
+            getOverallScore(profIndex, profName, profLink);
         } else {
             names[profIndex].innerText += " - N/A"; 
         }
@@ -90,7 +96,7 @@ function searchForProfessor(profIndex, profName) {
  * This function builds on searchForProfessor visits the URL
  * and returns the overall rating for that professor
  */
-function findRating(profIndex, profName, profLink) {
+function getOverallScore(profIndex, profName, profLink) {
     chrome.runtime.sendMessage({
         action: "xhr",
         method: "POST",
@@ -99,16 +105,30 @@ function findRating(profIndex, profName, profLink) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
         var profRating = ratingPage.querySelector("div.grade").innerText;
-        var color = getColor(parseInt(profRating));
         if (!names[profIndex].innerText.includes(" - ")) {
-            if (profRating != "0.0") {              // This only happens when there are no ratings
-                names[profIndex].innerText += " - " + profRating;
-                names[profIndex].style.color = color;
-            } else {
+            // Ignore requests with no ratings
+            if (profRating == "0.0" || profRating.includes("Grade Received")) {
                 names[profIndex].innerText += " - N/A";
+            } else {
+                names[profIndex].innerText += " - " + profRating;
+                names[profIndex].style.color = getColor(parseInt(profRating));
             }
         }
     });
+}
+
+function getOtherScores(profLink) {
+    console.debug("Started");
+    chrome.runtime.sendMessage({
+        action: "xhr",
+        method: "POST",
+        url: "http://www.ratemyprofessors.com" + profLink
+    }, function(response) {
+        var ratingPage = document.createElement("html");
+        ratingPage.innerHTML = response.pageText;
+        var otherScores = $("div .rating", ratingPage);
+        console.debug(otherScores);
+    })
 }
 
 /**
