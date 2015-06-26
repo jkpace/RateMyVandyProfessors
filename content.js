@@ -9,10 +9,9 @@ var names;                          // Set as global variable so any function ca
 // Find a way to make next two variables readable
 
 var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
-var modal = '<div class="detailHeader">Ratings</div><div class="detailPanel" id="ratings"><center><a href="http://www.ratemyprofessors.com/ShowRatings.jsp?tid=1424588" target="_blank">View on RateMyProfessor</a></center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness">N/A</td></tr><tr><td class="label">Clarity: </td><td id="clarity">N/A</td></tr><tr><td class="label">Easiness: </td><td id="easiness">N/A</td></tr></tbody></table></div>'
-var isList = true;
+var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center>View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness">N/A</td></tr><tr><td class="label">Clarity: </td><td id="clarity">N/A</td></tr><tr><td class="label">Easiness: </td><td id="easiness">N/A</td></tr></tbody></table></div>'
 
-// Confirm that the extension is active
+// Show user that the extension is active
 $("#mainContextMenu").css("width", "auto");
 $("#mainContextMenu .contextMenuItem").eq(0).before(anchorIndicator);
 
@@ -36,7 +35,8 @@ function update() {
         $("#rightSection").append(modal);
         var teacher = $("table.meetingPatternTable div").last().text()
         if (teacher != "" && !teacher.includes("Staff")) {
-            console.debug(teacher);
+          console.debug(convertName(teacher));
+          getModalUrl(convertName(teacher));
         }
     }
 }
@@ -59,7 +59,7 @@ function getProfessorNames() {
 }
 
 /**
- * This function emulates the RMP search page then outputs 
+ * This function emulates the RMP search page then outputs
  * the specific ID for that professor at Vanderbilt
  */
 function searchForProfessor(profIndex) {
@@ -72,7 +72,7 @@ function searchForProfessor(profIndex) {
         if (response.profLink != null) {
             getOverallScore(profIndex, profName, response.profLink);
         } else {
-            names[profIndex].innerText += " - N/A"; 
+            names[profIndex].innerText += " - N/A";
         }
     });
 }
@@ -81,11 +81,10 @@ function searchForProfessor(profIndex) {
  * This function changes the original name into one that can be searched
  */
 function convertName(original) {
-    if (original.trim() in subs) {
-        original = subs[original.trim()];
-    }
-    // Only take words immediately before and after comma (cuts off initials)
     var temp = /\w+(, )\w+/g.exec(original);
+    if (temp[0].trim() in subs) {
+        temp[0] = subs[original.trim()];
+    }
     return temp[0].replace(", ", "%2C+");
 }
 
@@ -111,6 +110,20 @@ function getOverallScore(profIndex, profName, profLink) {
     });
 }
 
+/**
+ * This functiong gets the professor name from a modal window
+ */
+function getModalUrl(teacher) {
+  chrome.runtime.sendMessage({
+    action: "searchForProfessor",
+    method: "POST",
+    url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + teacher
+  }, function(response) {
+    console.debug(teacher + " URL: " + response.profLink);
+    getOtherScores(response.profLink);
+  });
+}
+
 function getOtherScores(profLink) {
     console.debug("Started");
     chrome.runtime.sendMessage({
@@ -120,8 +133,13 @@ function getOtherScores(profLink) {
     }, function(response) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
-        var otherScores = $("div .rating", ratingPage);
-        console.debug(otherScores);
+        var otherScores = $("div .rating-slider .rating", ratingPage).slice(0, 3);
+        for (var i = 0; i < otherScores.length; i++) {
+            console.debug(otherScores[i].innerText)
+        }
+        $("#helpfulness").text(otherScores[0].innerText);
+        $("#clarity").text(otherScores[1].innerText);
+        $("#easiness").text(otherScores[2].innerText);
     })
 }
 

@@ -39,7 +39,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	        callback({profRating: profRating});
 		}
 		xhr.onerror = function() {
-			console.debug("[ERROR: getOverallScore");
+			console.debug("[ERROR]: getOverallScore");
+			callback();
+		}
+		return true;
+	} else if (request.action == "getOtherScores") {
+		xhr.onload = function() {
+			var otherRatingPage = document.createElement("html");
+			ratingPage.innerHTML = xhr.responseText;
+			var allRatings = ratingPage.querySelectorAll(".rating").innerText;
+			var otherRatings = new Array(3);
+			for (var i = 0; i < 2; i++) {
+				otherRatings[i] = allRatings[i];
+			}
+			callback({otherRatings: otherRatings});
+		}
+		xhr.onerror = function() {
+			console.debug("[ERROR: getOtherScores]");
 			callback();
 		}
 		return true;
