@@ -4,19 +4,18 @@
  */
 
 var timeout = null;		            // Necesssary for listener
-var isList = true;                  // True: in a list; False: in a modal
-var names;                          // Set as global variable so any function can use it
-// Find a way to make next two variables readable
+// var names;
 
+// Find a way to make next two variables readable
 var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
-var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center>View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness">N/A</td></tr><tr><td class="label">Clarity: </td><td id="clarity">N/A</td></tr><tr><td class="label">Easiness: </td><td id="easiness">N/A</td></tr></tbody></table></div>'
+var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center>View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Clarity: </td><td id="clarity"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Easiness: </td><td id="easiness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr></tbody></table></div>'
 
 // Show user that the extension is active
 $("#mainContextMenu").css("width", "auto");
 $("#mainContextMenu .contextMenuItem").eq(0).before(anchorIndicator);
 
 /**
- * Every second, checks to see if AJAX executes (if page changes any)
+ * Every second, checks to see if AJAX executes (if page changes at all)
  * This allows the extension to update even though the URL never changes
  */
 document.addEventListener("DOMSubtreeModified", function() {
@@ -35,14 +34,13 @@ function update() {
         $("#rightSection").append(modal);
         var teacher = $("table.meetingPatternTable div").last().text()
         if (teacher != "" && !teacher.includes("Staff")) {
-          console.debug(convertName(teacher));
           getModalUrl(convertName(teacher));
         }
     }
 }
 
 /**
- * This function gets the professor name from Class Search
+ * Gets the professor name from Class Search
  */
 function getProfessorNames() {
     names = $(".classInstructor");
@@ -59,8 +57,8 @@ function getProfessorNames() {
 }
 
 /**
- * This function emulates the RMP search page then outputs
- * the specific ID for that professor at Vanderbilt
+ * Emulates  the RMP search page then outputs the
+ * specific ID for that professor at Vanderbilt
  */
 function searchForProfessor(profIndex) {
     var profName = names[profIndex].innerText;
@@ -83,7 +81,7 @@ function searchForProfessor(profIndex) {
 function convertName(original) {
     var temp = /\w+(, )\w+/g.exec(original);
     if (temp[0].trim() in subs) {
-        temp[0] = subs[original.trim()];
+        temp[0] = subs[temp[0].trim()];
     }
     return temp[0].replace(", ", "%2C+");
 }
@@ -119,13 +117,15 @@ function getModalUrl(teacher) {
     method: "POST",
     url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + teacher
   }, function(response) {
-    console.debug(teacher + " URL: " + response.profLink);
-    getOtherScores(response.profLink);
+    if (response.profLink != null) {
+        getOtherScores(response.profLink);
+    } else {
+        console.debug("There is no URL");
+    }
   });
 }
 
 function getOtherScores(profLink) {
-    console.debug("Started");
     chrome.runtime.sendMessage({
         action: "xhr",
         method: "POST",
@@ -133,10 +133,7 @@ function getOtherScores(profLink) {
     }, function(response) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
-        var otherScores = $("div .rating-slider .rating", ratingPage).slice(0, 3);
-        for (var i = 0; i < otherScores.length; i++) {
-            console.debug(otherScores[i].innerText)
-        }
+        var otherScores = $(".rating-slider .rating", ratingPage).slice(0, 3);
         $("#helpfulness").text(otherScores[0].innerText);
         $("#clarity").text(otherScores[1].innerText);
         $("#easiness").text(otherScores[2].innerText);
@@ -148,10 +145,10 @@ function getOtherScores(profLink) {
  */
 function getColor(profRating) {
     if (profRating >= 3.5) {
-            return "#27AE60";                  // Green
-        } else if (profRating < 2.5) {
-            return "#E74C3C";                  // Red
-        } else {
-            return "#FF9800";                  // Yellow
-        }
+        return "#27AE60";                  // Green
+    } else if (profRating < 2.5) {
+        return "#E74C3C";                  // Red
+    } else {
+        return "#FF9800";                  // Yellow
+    }
 }
