@@ -8,7 +8,7 @@ var timeout = null;		            // Necesssary for listener
 
 // Find a way to make next two variables readable
 var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
-var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center>View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Clarity: </td><td id="clarity"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Easiness: </td><td id="easiness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr></tbody></table></div>'
+var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center id="modalLink">View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Clarity: </td><td id="clarity"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Easiness: </td><td id="easiness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr></tbody></table></div>'
 
 // Show user that the extension is active
 $("#mainContextMenu").css("width", "auto");
@@ -32,10 +32,15 @@ function update() {
     getProfessorNames();
     if (document.getElementById("ratings") == null) {
         $("#rightSection").append(modal);
-        var teacher = $("table.meetingPatternTable div").last().text()
+        var teacher = $("table.meetingPatternTable div").last().text();
         if (teacher != "" && !teacher.includes("Staff")) {
           getModalUrl(convertName(teacher));
-        }
+      } else {
+          $("#modalLink").text("No ratings available");
+          $("#helpfulness").text("N/A");
+          $("#clarity").text("N/A");
+          $("#easiness").text("N/A");
+      }
     }
 }
 
@@ -118,9 +123,13 @@ function getModalUrl(teacher) {
     url: "http://www.ratemyprofessors.com/search.jsp?queryoption=HEADER&queryBy=teacherName&schoolName=Vanderbilt+University&schoolID=4002&query=" + teacher
   }, function(response) {
     if (response.profLink != null) {
+        var linkToPage = "http://www.ratemyprofessors.com" + response.profLink;
+        $("#modalLink").wrap('<a href="' + linkToPage + '" target="_blank" />');
         getOtherScores(response.profLink);
     } else {
-        console.debug("There is no URL");
+        $("#helpfulness").text("N/A");
+        $("#clarity").text("N/A");
+        $("#easiness").text("N/A");
     }
   });
 }
@@ -134,9 +143,13 @@ function getOtherScores(profLink) {
         var ratingPage = document.createElement("html");
         ratingPage.innerHTML = response.pageText;
         var otherScores = $(".rating-slider .rating", ratingPage).slice(0, 3);
-        $("#helpfulness").text(otherScores[0].innerText);
-        $("#clarity").text(otherScores[1].innerText);
-        $("#easiness").text(otherScores[2].innerText);
+        if (otherScores != null) {
+            $("#helpfulness").text(otherScores[0].innerText);
+            $("#clarity").text(otherScores[1].innerText);
+            $("#easiness").text(otherScores[2].innerText);
+        } else {
+            $("#modalLink").text("No ratings available");
+        }
     })
 }
 
