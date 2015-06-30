@@ -34,13 +34,13 @@ function update() {
         $("#rightSection").append(modal);
         var teacher = $("table.meetingPatternTable div").last().text();
         if (teacher != "" && !teacher.includes("Staff")) {
-          getModalUrl(convertName(teacher));
-      } else {
-          $("#modalLink").text("No ratings available");
-          $("#helpfulness").text("N/A");
-          $("#clarity").text("N/A");
-          $("#easiness").text("N/A");
-      }
+            getModalUrl(convertName(teacher));
+        } else {
+            $("#modalLink").text("No ratings available");
+            $("#helpfulness").text("N/A");
+            $("#clarity").text("N/A");
+            $("#easiness").text("N/A");
+        }
     }
 }
 
@@ -127,6 +127,7 @@ function getModalUrl(teacher) {
         $("#modalLink").wrap('<a href="' + linkToPage + '" target="_blank" />');
         getOtherScores(response.profLink);
     } else {
+        $("#modalLink").text("No ratings available");
         $("#helpfulness").text("N/A");
         $("#clarity").text("N/A");
         $("#easiness").text("N/A");
@@ -136,17 +137,14 @@ function getModalUrl(teacher) {
 
 function getOtherScores(profLink) {
     chrome.runtime.sendMessage({
-        action: "xhr",
+        action: "getOtherScores",
         method: "POST",
         url: "http://www.ratemyprofessors.com" + profLink
     }, function(response) {
-        var ratingPage = document.createElement("html");
-        ratingPage.innerHTML = response.pageText;
-        var otherScores = $(".rating-slider .rating", ratingPage).slice(0, 3);
-        if (otherScores != null) {
-            $("#helpfulness").text(otherScores[0].innerText);
-            $("#clarity").text(otherScores[1].innerText);
-            $("#easiness").text(otherScores[2].innerText);
+        if (response.otherScores != null) {
+            $("#helpfulness").text(response.otherScores[0]);
+            $("#clarity").text(response.otherScores[1]);
+            $("#easiness").text(response.otherScores[2]);
         } else {
             $("#modalLink").text("No ratings available");
         }
