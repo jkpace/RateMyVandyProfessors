@@ -49,8 +49,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	        ratingPage.innerHTML = xhr.responseText;
 			var pageScores = ratingPage.getElementsByClassName("rating");
 			var otherScores = [];
-			for (var i = 0; i < 3; i++) {
-				otherScores.push(pageScores[i].innerText);
+			if (pageScores.length > 0) {
+				for (var i = 0; i < 3; i++) {
+					otherScores.push(pageScores[i].innerText);
+				}
 			}
 			callback({otherScores: otherScores});
 		}

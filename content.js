@@ -4,7 +4,6 @@
  */
 
 var timeout = null;		            // Necesssary for listener
-// var names;
 
 // Find a way to make next two variables readable
 var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
@@ -26,7 +25,7 @@ document.addEventListener("DOMSubtreeModified", function() {
 }, false);
 
 /**
- * This function determines the type of data to retrieve, pushes it
+ * Searches through results page + modal window for professor names
  */
 function update() {
     getProfessorNames();
@@ -36,10 +35,7 @@ function update() {
         if (teacher != "" && !teacher.includes("Staff")) {
             getModalUrl(convertName(teacher));
         } else {
-            $("#modalLink").text("No ratings available");
-            $("#helpfulness").text("N/A");
-            $("#clarity").text("N/A");
-            $("#easiness").text("N/A");
+            setNoRatingsAvailable();
         }
     }
 }
@@ -50,6 +46,7 @@ function update() {
 function getProfessorNames() {
     names = $(".classInstructor");
     for (var i = 0; i < names.length; i++) {
+        // Make sure current name isn't already rated/being rated
         if (!names[i].innerText.includes(" - ") && names[i].innerText != "" && !names[i].innerHTML.includes("<img")) {
             if (names[i].innerText.includes("Staff") || names[i].innerText.includes(" | ")) {
                 names[i].innerText += " - N/A";
@@ -81,9 +78,10 @@ function searchForProfessor(profIndex) {
 }
 
 /**
- * This function changes the original name into one that can be searched
+ * Changes the original name into one that can be searched
  */
 function convertName(original) {
+    // RegEx to change names to LAST, FIRST format
     var temp = /\w+(, )\w+/g.exec(original);
     if (temp[0].trim() in subs) {
         temp[0] = subs[temp[0].trim()];
@@ -92,7 +90,7 @@ function convertName(original) {
 }
 
 /**
- * This function builds on searchForProfessor visits the URL
+ * Builds on searchForProfessor, visits the URL
  * and returns the overall rating for that professor
  */
 function getOverallScore(profIndex, profName, profLink) {
@@ -114,7 +112,7 @@ function getOverallScore(profIndex, profName, profLink) {
 }
 
 /**
- * This functiong gets the professor name from a modal window
+ * Gets professor name form modal window and returns their URL from RMP
  */
 function getModalUrl(teacher) {
   chrome.runtime.sendMessage({
@@ -127,32 +125,43 @@ function getModalUrl(teacher) {
         $("#modalLink").wrap('<a href="' + linkToPage + '" target="_blank" />');
         getOtherScores(response.profLink);
     } else {
-        $("#modalLink").text("No ratings available");
-        $("#helpfulness").text("N/A");
-        $("#clarity").text("N/A");
-        $("#easiness").text("N/A");
+        setNoRatingsAvailable();
     }
   });
 }
 
+/**
+ * Gets the professor's ratings from a modal window
+*/
 function getOtherScores(profLink) {
     chrome.runtime.sendMessage({
         action: "getOtherScores",
         method: "POST",
         url: "http://www.ratemyprofessors.com" + profLink
     }, function(response) {
-        if (response.otherScores != null) {
+        // Workaround for teacher in RMP, but no ratings yet
+        if (response.otherScores.length > 0) {
             $("#helpfulness").text(response.otherScores[0]);
             $("#clarity").text(response.otherScores[1]);
             $("#easiness").text(response.otherScores[2]);
         } else {
-            $("#modalLink").text("No ratings available");
+            setNoRatingsAvailable();
         }
     })
 }
 
 /**
- * This function color-codes the ratings
+ * Changes values in modal windows to show that no ratings are available
+*/
+function setNoRatingsAvailable() {
+    $("#modalLink").text("No ratings available");
+    $("#helpfulness").text("N/A");
+    $("#clarity").text("N/A");
+    $("#easiness").text("N/A");
+}
+
+/**
+ * Color-codes the ratings
  */
 function getColor(profRating) {
     if (profRating >= 3.5) {
