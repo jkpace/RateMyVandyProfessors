@@ -14,7 +14,7 @@ $("#mainContextMenu").css("width", "auto");
 $("#mainContextMenu .contextMenuItem").eq(0).before(anchorIndicator);
 
 /**
- * Every second, checks to see if AJAX executes (if page changes at all)
+ * Checks the DOM for changes every second
  * This allows the extension to update even though the URL never changes
  */
 document.addEventListener("DOMSubtreeModified", function() {

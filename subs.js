@@ -1,3 +1,4 @@
+// Format: 'Class Search', 'Rate My Professors'
 var subs = {
 	'Roth, Gerald': 'Roth, Jerry',
 	'Stahl, Sandra': 'Stahl, Sandy',
