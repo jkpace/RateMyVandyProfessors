@@ -7,7 +7,7 @@ var timeout = null;		            // Necesssary for listener
 
 // Find a way to make next two variables readable
 var anchorIndicator = '<div class="contextMenuItem contextMenuDivider"><div class="contextItemHeader">Active</div><div class="contextItemBody"><img src="https://i.imgur.com/Dp6UoWh.png" /></div></div>';
-var modal = '<div class="detailHeader id="ratingsLabel"">Ratings</div><div class="detailPanel" id="ratings"><center id="modalLink">View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Clarity: </td><td id="clarity"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Easiness: </td><td id="easiness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr></tbody></table></div>'
+var modal = '<div class="detailHeader" id="ratingsLabel">Ratings</div><div class="detailPanel" id="ratings"><center id="modalLink">View on RateMyProfessor</center><table class="availabilityNameValueTable"><tbody><tr><td colspan="2"><div class="listDivider"></div></td></tr><tr><td class="label">Helpfulness: </td><td id="helpfulness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Clarity: </td><td id="clarity"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr><tr><td class="label">Easiness: </td><td id="easiness"><img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif"></td></tr></tbody></table></div>';
 
 // Show user that the extension is active
 $("#mainContextMenu").css("width", "auto");
@@ -51,7 +51,7 @@ function getProfessorNames() {
             if (names[i].innerText.includes("Staff") || names[i].innerText.includes(" | ")) {
                 names[i].innerText += " - N/A";
             } else {
-                names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">'
+                names[i].innerHTML += '<img src="https://webapp.mis.vanderbilt.edu/more/images/loading.gif">';
                 searchForProfessor(i);
             }
         }
@@ -81,7 +81,7 @@ function searchForProfessor(profIndex) {
  * Changes the original name into one that can be searched
  */
 function convertName(original) {
-    // RegEx to change names to LAST, FIRST format
+    // regex to change names to LAST, FIRST format
     var temp = /\w+(, )\w+/g.exec(original);
     if (temp[0].trim() in subs) {
         temp[0] = subs[temp[0].trim()];
@@ -165,10 +165,10 @@ function setNoRatingsAvailable() {
  */
 function getColor(profRating) {
     if (profRating >= 3.5) {
-        return "#27AE60";                  // Green
+        return "#27AE60";   // Green
     } else if (profRating < 2.5) {
-        return "#E74C3C";                  // Red
+        return "#E74C3C";   // Red
     } else {
-        return "#FF9800";                  // Yellow
+        return "#FF9800";   // Yellow
     }
 }
