@@ -3,3 +3,7 @@ Rate My Vandy Professors is a Google Chrome extension that puts RateMyProfessors
 <img src="http://i.imgur.com/ZcAiofW.png">
 # Chrome Web Store
 The extension can be downloaded on the Chrome Web Store <a href="https://chrome.google.com/webstore/detail/rate-my-vandy-professors/oaoneifognaiapnemgpeifibjijidpne?hl=en-US">here</a>.
+# Changelog
+* 1.1.1 - Fixed issue where extension would be inactive on certain URLs
+* 1.1   - Added functionality to see teacher's helpfulness, clarity, and easiness scores
+* 1.0   - Initial launch
