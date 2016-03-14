@@ -10,5 +10,6 @@ var subs = {
 	"Johnsen, Arthur": "Johnsen, Art",
 	"Link, Stanley": "Link, Stan",
 	"Savelyev, Petr A.": "Savelyev, Peter",
-	"Leguizamon J S.": "Leguizamon, Sebastian"
+	"Leguizamon J S.": "Leguizamon, Sebastian",
+	"White, Christopher J.": "White, Jules"
 };
