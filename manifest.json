@@ -1,13 +1,19 @@
 {
 	"manifest_version": 2,
-	"name": "Rate My Vandy Professors",
+	"name": "Rate My Vandy Professors BETA",
 	"short_name": "RateVandy",
 	"description": "Puts RateMyProfessors ratings directly into Vanderbilt Class Search.",
 	"version": "1.5",
 	"icons": {
-		"16": "icon16.png",
-		"48": "icon48.png",
-		"128": "icon128.png"
+		"16": "./img/icon16.png",
+		"48": "./img/icon48.png",
+		"128": "./img/icon128.png"
+	},
+	"page_action": {
+		"default_icon": {
+			"19": "./img/icon19.png",
+			"38": "./img/icon38.png"
+		}
 	},
 	"permissions": [
 		"http://www.ratemyprofessors.com/*"
@@ -15,12 +21,12 @@
 	"content_scripts": [
 		{
 			"matches": ["https://webapp.mis.vanderbilt.edu/more/SearchClasses*"],
-			"js": ["jquery-2.1.4.min.js", "content.js", "subs.js"],
+			"js": ["./dist/bundle.js"],
 			"all_frames": true
 		}
 	],
 	"background": {
-		"scripts": ["background.js"],
+		"scripts": ["./dist/background.js"],
 		"persistent": false
 	}
 }
