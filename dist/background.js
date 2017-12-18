@@ -60,88 +60,79 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */,
 /* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(3);
+module.exports = __webpack_require__(4);
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
-// This background file serves as a workaround for mixed content in Chrome
-chrome.runtime.onMessage.addListener(function (request, sender, callback) {
-    var xhr = new XMLHttpRequest();
+// @ts-ignore
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     var method = request.method ? request.method.toUpperCase() : 'GET';
-    xhr.open(method, request.url, true);
-    if (method == "POST") {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    xhr.send(request.data);
-    if (request.action == "xhr") {
-        xhr.onload = function () {
-            callback({ pageText: xhr.responseText });
-        };
-        xhr.onerror = function () {
-            console.debug("[ERROR: xhr]");
-            callback();
-        };
-        return true;
-    }
-    else if (request.action == "searchForProfessor") {
-        xhr.onload = function () {
-            var searchPage = document.createElement("html");
-            searchPage.innerHTML = xhr.responseText;
-            var profLink = searchPage.querySelector(".listing.PROFESSOR");
-            if (profLink != null) {
-                profLink = profLink.getElementsByTagName("a")[0].getAttribute("href");
-            }
-            callback({ profLink: profLink });
-        };
-        xhr.onerror = function () {
-            console.debug("[ERROR: searchForProfessor]");
-            callback();
-        };
-        return true;
-    }
-    else if (request.action == "getOverallScore") {
-        xhr.onload = function () {
-            var ratingPage = document.createElement("html");
-            ratingPage.innerHTML = xhr.responseText;
-            var profRating = ratingPage.querySelector("div.grade").innerText;
-            callback({ profRating: profRating });
-        };
-        xhr.onerror = function () {
-            console.debug("[ERROR]: getOverallScore");
-            callback();
-        };
-        return true;
-    }
-    else if (request.action == "getOtherScores") {
-        xhr.onload = function () {
-            var ratingPage = document.createElement("html");
-            ratingPage.innerHTML = xhr.responseText;
-            var pageScores = ratingPage.getElementsByClassName("rating");
-            var otherScores = [];
-            if (pageScores.length > 0) {
-                for (var i = 0; i < 3; i++) {
-                    otherScores.push(pageScores[i].innerText);
-                }
-            }
-            callback({ otherScores: otherScores });
-        };
-        xhr.onerror = function () {
-            console.debug("[ERROR]: getOtherScores");
-            callback();
-        };
-        return true;
+    var headers = new Headers();
+    if (method === 'POST')
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    var config = {
+        method: method,
+        headers: headers,
+        mode: 'cors',
+        cache: 'default',
+    };
+    switch (request.action) {
+        case 'showIcon':
+            // @ts-ignore
+            chrome.pageAction.show(sender.tab.id);
+            return true;
+        case 'searchForProfessor':
+            fetch(request.url, config)
+                .then(function (res) { return res.text(); })
+                .then(function (pageText) {
+                var searchPage = document.createElement('html');
+                searchPage.innerHTML = pageText;
+                var profId = searchPage.querySelector('.listing.PROFESSOR');
+                var ret = (profId) ?
+                    profId.getElementsByTagName('a')[0].getAttribute('href') :
+                    profId;
+                console.debug(ret);
+                sendResponse({ profId: ret });
+            })
+                .catch(function (err) {
+                console.debug('[ERROR: searchForProfessor]');
+                console.debug(err);
+                sendResponse();
+                return false;
+            });
+            return true;
+        case 'getOverallScore':
+            fetch(request.url, config)
+                .then(function (res) { return res.text(); })
+                .then(function (pageText) {
+                var ratingPage = document.createElement('html');
+                ratingPage.innerHTML = pageText;
+                var profRating = ratingPage.querySelector('div.grade').textContent;
+                sendResponse({ profRating: profRating });
+            })
+                .catch(function (err) {
+                console.debug('[ERROR: getOverallScore]');
+                console.debug(err);
+                sendResponse();
+                return false;
+            });
+            return true;
+        default:
+            console.debug("Action " + request.action + " not recognized");
+            break;
     }
 });
 

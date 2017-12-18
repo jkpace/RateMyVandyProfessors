@@ -2,8 +2,8 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    bundle: ['./src/content.js'],
-    background: ['./src/background.js']
+    bundle: ['./src/content.ts'],
+    background: ['./src/background.ts']
   },
   module: {
     rules: [
