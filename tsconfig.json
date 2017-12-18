@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "es7"
+    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "exclude": [
+    "./node_modules"
+  ]
+}
