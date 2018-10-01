@@ -3,7 +3,7 @@
 	"name": "Rate My Vandy Professors",
 	"short_name": "RateVandy",
 	"description": "Puts RateMyProfessors ratings directly into Vanderbilt Class Search.",
-	"version": "1.5",
+	"version": "1.5.1",
 	"icons": {
 		"16": "./img/icon16.png",
 		"48": "./img/icon48.png",
@@ -20,7 +20,7 @@
 	],
 	"content_scripts": [
 		{
-			"matches": ["https://webapp.mis.vanderbilt.edu/more/SearchClasses*"],
+			"matches": ["https://*.vanderbilt.edu/more/SearchClasses*"],
 			"js": ["./dist/bundle.js"],
 			"all_frames": true
 		}
