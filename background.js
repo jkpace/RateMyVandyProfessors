@@ -45,17 +45,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		return true;
 	} else if (request.action == "getOtherScores") {
 		xhr.onload = function() {
-			var otherRatingPage = document.createElement("html");
-			ratingPage.innerHTML = xhr.responseText;
-			var allRatings = ratingPage.querySelectorAll(".rating").innerText;
-			var otherRatings = new Array(3);
-			for (var i = 0; i < 2; i++) {
-				otherRatings[i] = allRatings[i];
+			var ratingPage = document.createElement("html");
+	        ratingPage.innerHTML = xhr.responseText;
+			var pageScores = ratingPage.getElementsByClassName("rating");
+			var otherScores = [];
+			if (pageScores.length > 0) {
+				for (var i = 0; i < 3; i++) {
+					otherScores.push(pageScores[i].innerText);
+				}
 			}
-			callback({otherRatings: otherRatings});
+			callback({otherScores: otherScores});
 		}
 		xhr.onerror = function() {
-			console.debug("[ERROR: getOtherScores]");
+			console.debug("[ERROR]: getOtherScores");
 			callback();
 		}
 		return true;
